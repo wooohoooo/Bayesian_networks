@@ -1,0 +1,12 @@
+\contentsline {section}{\numberline {1}test}{2}{section.1}
+\contentsline {section}{\numberline {2}assignment}{2}{section.2}
+\contentsline {subsubsection}{\numberline {2.0.1}data discretization}{2}{subsubsection.2.0.1}
+\contentsline {subsubsection}{\numberline {2.0.2}size of dataset}{2}{subsubsection.2.0.2}
+\contentsline {subsection}{\numberline {2.1}comparison to manually constructed bayes network}{2}{subsection.2.1}
+\contentsline {subsubsection}{\numberline {2.1.1}define measures for quality of a learning algorithm in terms of a known bayes network structure, motivate definition}{2}{subsubsection.2.1.1}
+\contentsline {subsubsection}{\numberline {2.1.2}use measures to evaluate both classes of learning algs for NHL dataset}{2}{subsubsection.2.1.2}
+\contentsline {subsubsection}{\numberline {2.1.3}compare margial prob distributions of learnt NHL bN with those of the manually coinstructed ones}{2}{subsubsection.2.1.3}
+\contentsline {subsection}{\numberline {2.2}diagnostic BN structures}{2}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}develop special purpose BN (NBN or TAN, see .2)}{2}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}compare BN and SPBN with manually constructed network in terms of network structure, goodnes of fit scores (lkikelohood,\ldots {}) and accuracy measures such as misclassification error and ROC (B.2)}{2}{subsection.2.4}
+\contentsline {section}{\numberline {3}Ideas:}{3}{section.3}

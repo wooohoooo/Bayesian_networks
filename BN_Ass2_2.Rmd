@@ -1,0 +1,119 @@
+---
+title: "BN - Assignment 2"
+author: "Thomas Rost"
+date: "Saturday, December 13, 2014"
+output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+bibliography: C:\Users\Trost\Copy\Nijmegen\Storage\Docs\Thomas\Mendeley_Bib\library.bib
+---
+
+\newpage
+
+
+\section{test}
+
+
+
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+
+# assignment
+
+
+[-@Steele1999]
+@Steele1999
+
+## comparison of two learning algos
+
+### data discretization
+data discretization: number of arcs, changes in arc direction,...
+three discretizations in the iris data with different number of bins (B.3). Do this for both classes (constraing based oder search and score). Comppare the results
+
+### size of dataset
+consider subsets of BC-dataset with different number of samples. both classes of learning algios, compare results
+
+## comparison to manually constructed bayes network
+
+NHL dataset, liad column classes as factor (A.4)
+
+missing data : probably median since mean desn't make sense for factors.
+
+check for differences, unterschiedlcihe zahl nodes is ok.
+
+### define measures for quality of a learning algorithm in terms of a known bayes network structure, motivate definition
+
+###use measures to evaluate both classes of learning algs for NHL dataset
+
+### compare margial prob distributions of learnt NHL bN with those of the manually coinstructed ones
+
+## diagnostic BN structures
+
+leanr bayes network from BN using sas or cb algo
+
+## develop special purpose BN (NBN or TAN, see .2)
+
+## compare BN and SPBN with manually constructed network in terms of network structure, goodnes of fit scores (lkikelohood,...) and accuracy measures such as misclassification error and ROC (B.2)
+
+library(ROCR),
+\footnote{Tobias Sing, Oliver Sander, Niko Beerenwinkel, Thomas Lengauer.
+ROCR: visualizing classifier performance in R.
+Bioinformatics 21(20):3940-3941 (2005).}
+\cite{Sing2005}
+@Sing2005
+ 
+
+
+
+
+
+
+
+
+# Ideas:
+
+
+```{r}
+library(Rgraphviz)
+library(gRain)
+library(bnlearn)
+library(caTools)
+data(asia)
+
+net = hc(asia)
+plot(net)
+net <- set.arc(net,"A","T")
+
+plot(net)
+fitted = bn.fit(net,asia)
+fitted
+
+score(net,asia)
+
+netgs = gs(asia)
+netgs_directed = cextend(netgs)
+netgs_directed
+plot(netgs)
+plot(netgs_directed)
+
+
+netnb = naive.bayes(asia,"T",names(asia)[c(1:2,4:8)])
+plot(netnb)
+```
+
+Do Cross validation!
+
+```{r}
+netcv = bn.cv(asia,net,loss ="pred", k = 3, loss.args = list(target="T"),debug = T)
+```
+
+
+
+
+#references
+\twocolumn
