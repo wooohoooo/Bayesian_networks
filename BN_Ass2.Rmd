@@ -35,6 +35,74 @@ Content Cell  | Content Cell
 @Steele1999
 -->
 
+#Already there:
+
+## Investigate what is the effect of data discretisation on the structure of the learnt Bayesian
+network, e.g., in terms of number of arcs, changes in arc direction, etc., by considering
+three discretisations of the continuous features in the iris dataset with different number
+of bins (see Section B.3). Do this for both classes of learning algorithms and compare
+the results.
+
+###there: get discretization for data set
+
+###Missing: write what "number of arcs, changes in arc direction, etc" changes there are
+
+##Investigate what is the effect of the size of the dataset on the structure of the learnt
+Bayesian network by considering three subsets of the breast cancer dataset with different
+7number of samples. Do this for both classes of learning algorithms and compare the
+results.
+
+###there: get size of dataset changed and plot
+
+###Missing: invesitgate "number of arcs, changes in arc direction, etc"
+
+##Define measures that can be used to determine the quality of a learning algorithm in
+terms of a known Bayesian network structure. Motivate the definition of these measures
+
+
+###there: Define ???
+
+###Missing: motivate???
+
+## Use these measures in order to evaluate the quality of both classes of learning algorithms
+for the NHL dataset.
+
+###there: plot NHL algorithm
+
+###Missing: evaluate NHL with new measure
+
+##Compare the marginal probability distributions of the learnt NHL Bayesian network with
+those of the manually constructed network.
+
+###there: marginal probabilities
+
+###Missing: comparisson, find manually constructed network
+
+## Learn a Bayesian network from the breast cancer dataset using a search-and-score or
+constraint-based algorithm
+
+###there: Done
+
+###Missing:
+
+##Develop a special purpose (e.g., NBN or TAN) Bayesian network (see Section B.2 in
+the appendix).
+
+###there: Done
+
+###Missing:
+
+##Compare the Bayesian network obtained by step (6) and the special purpose Bayesian
+network from (7) with the manually constructed network in Figure 2 in terms of network
+structure, goodness of fit scores (e.g., likelihood) and accuracy using measures such as
+misclassification error and area under the ROC curve from cross-validation (see Section
+B.2 in the appendix)
+
+###there:
+
+###Missing: comparission
+
+
 # comparison of two learning algos
 
 ## data discretization
@@ -215,7 +283,24 @@ fittedNHL = bn.fit(NHLnet_sbl,NHL)
 fittedNHL
 #fittedNHL2
 ```
-leanr bayes network from BN using sas or cb algo
+
+
+get the manually constructed network:
+
+
+```{r}
+
+manual = read.net("nhl.net")
+
+#manual
+
+#manNet = bn.fit(manual,a)
+names(manual)
+typeof(manual)
+manual
+test <- bn.net(manual)
+plot(test)
+```
 
 # develop special purpose BN (NBN or TAN, see .2)
 ```{r}
