@@ -5,6 +5,8 @@ date: "Saturday, December 13, 2014"
 output:
   pdf_document:
     fig_caption: yes
+    fig_crop: no
+    fig_width: 7
     keep_tex: yes
     number_sections: yes
     toc: yes
@@ -35,82 +37,44 @@ Content Cell  | Content Cell
 @Steele1999
 -->
 
-#Already there:
 
-## Investigate what is the effect of data discretisation on the structure of the learnt Bayesian
+
+
+
+
+
+
+
+
+
+# comparison of two learning algos
+
+
+
+
+
+##1: data discretization
+
+Investigate what is the effect of data discretisation on the structure of the learnt Bayesian
 network, e.g., in terms of number of arcs, changes in arc direction, etc., by considering
 three discretisations of the continuous features in the iris dataset with different number
 of bins (see Section B.3). Do this for both classes of learning algorithms and compare
 the results.
 
-###there: get discretization for data set
-
-###Missing: write what "number of arcs, changes in arc direction, etc" changes there are
-
-##Investigate what is the effect of the size of the dataset on the structure of the learnt
-Bayesian network by considering three subsets of the breast cancer dataset with different
-7number of samples. Do this for both classes of learning algorithms and compare the
-results.
-
-###there: get size of dataset changed and plot
-
-###Missing: invesitgate "number of arcs, changes in arc direction, etc"
-
-##Define measures that can be used to determine the quality of a learning algorithm in
-terms of a known Bayesian network structure. Motivate the definition of these measures
 
 
-###there: Define ???
+Discretizing the iris data set with the hartemink algorithm leads to the networks shown in the figures below. The first three depict a score-based algorithm, while the second triple shows the effect of discretization on constraint-based algorithms.
+###General considerations: 
+The best way to deal with data is case dependent. In the case of discretization, some Datasets might benefit from more bins while others benefit from less, depending on the distribution of the variables within the set. In the case of the iris data set, a bin number of three seems to be a sensible choice, given the three speicies. When looking at the plots, we can see that both petal width and petal length can be binned in three bins with only minor overlap between the species. However, sepal length and width have a big overlap and might benefit from higher bin numbers.
+We considered three, five and seven bins for both score and constraint based algorithms.
 
-###Missing: motivate???
+###Score Based:
 
-## Use these measures in order to evaluate the quality of both classes of learning algorithms
-for the NHL dataset.
+Three bins leads to four arcs with relatively sensible directions: species influences petal length which influences sepal length, seepal width influences petal width which in turn influences speices. The graph is well-connected, each variable will play a role in classifying the species, even if two of them are indirect. The causality seems a bit odd, but not completely against intuition. All arcs are directed.
 
-###there: plot NHL algorithm
+five bins leads to four arcs with different causality compared to three bins: sepal length now influences petal length which influences petal width which influences species which in turn influences sepal width. On a first glance, the causality in the three bins case seems to make more sense, but again the logic does not ddefy intuition on a disturbing level. All arcs are directed.
 
-###Missing: evaluate NHL with new measure
-
-##Compare the marginal probability distributions of the learnt NHL Bayesian network with
-those of the manually constructed network.
-
-###there: marginal probabilities
-
-###Missing: comparisson, find manually constructed network
-
-## Learn a Bayesian network from the breast cancer dataset using a search-and-score or
-constraint-based algorithm
-
-###there: Done
-
-###Missing:
-
-##Develop a special purpose (e.g., NBN or TAN) Bayesian network (see Section B.2 in
-the appendix).
-
-###there: Done
-
-###Missing:
-
-##Compare the Bayesian network obtained by step (6) and the special purpose Bayesian
-network from (7) with the manually constructed network in Figure 2 in terms of network
-structure, goodness of fit scores (e.g., likelihood) and accuracy using measures such as
-misclassification error and area under the ROC curve from cross-validation (see Section
-B.2 in the appendix)
-
-###there:
-
-###Missing: comparission
-
-
-# comparison of two learning algos
-
-## data discretization
-data discretization: number of arcs, changes in arc direction,...
-three discretizations in the iris data with different number of bins (B.3). Do this for both classes (constraing based oder search and score). Comppare the results
-
-
-
+seven bins also leads to four arcs. The causality in this case seems different to the others at least in two major ways: Species is a leaf and one node (petal width) has two children, compared to the one on one mapping of parents to children in the previous sections. The logic in this cacse seems weaker compared to the other two bin number cases, since species should have a more direct influence to sepal width.
 
 ```{r, echo=FALSE, include=FALSE}
 library(datasets)
@@ -124,6 +88,8 @@ library(caTools)
 
 ```{r,fig.cap=c("SB , ibreaks = 3","CB , ibreaks = 3","SB , ibreaks = 5", "CB , ibreaks = 5", "SB , ibreaks = 7","CB , ibreaks = 7")}
 
+plot(iris)
+
 
 for( bins in c(3,5,7)){
 tmp=discretize(iris[-5], method = 'hartemink',ibreaks=bins) 
@@ -131,9 +97,39 @@ NewIris = cbind(tmp,iris[5])
 
 IrisNetsb <- tabu(NewIris)
 
-plot(IrisNetsb, font.main = 1, main = paste("SB, ibreaks = ", bins))
+numNodes = length(IrisNetsb$nodes)
+numArcs = length(IrisNetsb$arcs[,1])
+
+plot(IrisNetsb, font.main = 1, main = paste("SB, ibreaks = ", bins, "number of nodes:" , numNodes, "bumber of arcs:" , numArcs))
+
+
+
 
 }
+
+```
+###Constraint based:
+
+general statement.
+Constraint based algorithms (all of them were tried out, although only one is reported here) tend to lead to way less expressive networks. often arcs are undirected and the number of graphs is often significantly lower than with score based algorithms. However, this does not necessarily mean that constraint based algorithms are "worse". The constraint nature leads to more robust predictions. the strengths of the two algorithm classes should be considered for each task individually.
+ (see Bayesian Probabilities for Constraint-based Causal Discovery
+Tom Claassen and Tom Heskes
+Radboud University Nijmegen
+Netherlands).
+in order to compare score based and constraint based algorithms, in some cases the cextend() function has been used.
+
+
+three bins:
+only two arcs, between petal width and petal length. No directions. sepal length and width are separate networks that aren't connected to species.
+
+five bins: four arcs corresponding to the five bins score based algoriuthm's outcome. 
+
+seven bins: three arcs, only connection between species and another node is petal width. The rest is a separate network. 
+
+
+
+
+```{r}
 
 
 for( bins in c(3,5,7)){
@@ -141,8 +137,17 @@ tmp=discretize(iris[-5], method = 'hartemink',ibreaks=bins)
 NewIris = cbind(tmp,iris[5]) 
 
 IrisNetcb <- iamb(NewIris)
+IrisNetcb2 <- cextend(IrisNetcb)
 
-plot(IrisNetcb, font.main = 1, main = paste("CB, ibreaks = ", bins))
+numNodes = length(IrisNetcb$nodes)
+numArcs = length(IrisNetcb$arcs[,1])
+
+plot(IrisNetcb2, font.main = 1, main = paste("CB, ibreaks = ", bins,  "number of nodes:" , numNodes, "bumber of arcs:" , numArcs))
+
+
+
+
+
 
 }
 
@@ -158,37 +163,41 @@ plot(IrisNetcb, font.main = 1, main = paste("CB, ibreaks = ", bins))
 
 
 
-constraint based:
-\begin{itemize}
-\item grow-shrink (GS())
-\item incremental association markov blanket (IAMB())
-\item Fast incremental association (FAST-IAMB())
-\item interleaved incremental Association (inter-IAMB)
-\end{itemize}
+##2: size of dataset
+Investigate what is the effect of the size of the dataset on the structure of the learnt Bayesian network by considering three subsets of the breast cancer dataset with different number of samples. Do this for both classes of learning algorithms and compare the
+results.
 
-score based learning algos:
-\begin{itemize}
-\item Hill climbing (HC)
-\item Tabu search (Tabu)
-\end{itemize}
+###general disclaimer: 
+again, the constraint based algorithms do not always lead to directed nodes. the same function has been used as before.
+The effect of number of training examples on performance of the training algorithms has been examined. every tenth data point, half of the data and the full data set have been examined. 
 
-\newpage
+###SB
+for score based algorithms, there is no difference between models whether the full or the half data set is used. The number of arcs and arc direction are the same. However, when only a tenth of the data set has been used, two arcs were not inferred. This seems to be in line with the idea that more training data generates more sophisticated models.
 
-## size of dataset
-consider subsets of BC-dataset with different number of samples. both classes of learning algios, compare results
+###CB
+for constraint based algorithms, evaluation of node direction is complicated. Therefore the discussion will be only for arc number. Again, no difference in arc number for full or half data set, however, a node is missing in the tenth-dataset-model.  Again, this seems to match intuition.
 
 
 ```{r}
 
 a <- read.csv('bc.csv')
 
+#plot(a)
+
 for(part in c(10,2,1)){
     ind = sample(1:(nrow(a)/part))
     BC <- a[ind,]
     
-    BC_cbl <- tabu(BC)
+    BC_sbl <- tabu(BC)
     
-    plot(BC_cbl , font.main = 1, main = paste("CB, every ", part, "Datapoint"))
+    
+numNodes = length(BC_sbl$nodes)
+numArcs = length(BC_sbl$arcs[,1])
+    
+    
+    plot(BC_sbl , font.main = 1, main = paste("SB, every ", part, "Datapoint", bins,  "number of nodes:" , numNodes, "bumber of arcs:" , numArcs))
+
+    
 }
 
 
@@ -196,9 +205,15 @@ for(part in c(1,2,10)){
     ind = sample(1:(nrow(a)/part))
     BC <- a[ind,]
     
-    BC_sbl <- iamb(BC)
+    BC_cbl <- iamb(BC)
+    BC_cbl2 <- cextend(BC_sbl)
+    numNodes = length(BC_cbl$nodes)
+    numArcs = length(BC_cbl$arcs[,1])
 
-    plot(BC_sbl,  font.main = 1, main = paste("SB, every ", part, "Datapoint"))
+    plot(BC_cbl2,  font.main = 1, main = paste("CB, every ", part, "Datapoint", bins,  "number of nodes:" , numNodes, "bumber of arcs:" , numArcs))
+
+    
+
 }
 
 ```
@@ -207,14 +222,38 @@ for(part in c(1,2,10)){
 \clearpage
 
 
-## comparison to manually constructed bayes network
+# comparison to manually constructed bayes network
+
+
+#3:define measures for quality of a learning algorithm in terms of a known bayes network structure, motivate definition
+
+Define measures that can be used to determine the quality of a learning algorithm in
+terms of a known Bayesian network structure. Motivate the definition of these measures
+
+
+I have to be honest: I do not really understand that Question. Do the authors suggest I find a measure that is original in describing the quality of a bayesian Network? I'm sure that can't be true.
+
+My measure for quality of the learning algorithm is Aruhga, which is the Quotient between nodes and vertices. $$Aruhga = \frac{Nodes}{Vertices}$$Arhuga is a binary measure with the classes {useful, not useful}, depending on wether Aruhga falls inside the interval [$\alpha , \beta$]. $\alpha$ and $\beta$ are depending heavily on the purpose and topic of the network and should normally be defined by logical reasoning before constructing the network. However, since the expert knowledge and necessary publications are not always readily available, the author provides some default values with $\alpha = 2.3$ and  $\beta = 1.2/Nodes!$. Please note that Aruhga is a measure of the connectivity of the network. values above alpha may indicate that too many nodes are used, thus either weakening the correlation between the single nodes OR bringing in Nodes that are not relevant for each other. Networks with a value below beta indicate that the network is highly connected which might reduce functionality and also might point to a circular relationship between variables in the real world that cannot be represented by a DAG.
+
+
+##4:use measures to evaluate both classes of learning algs for NHL dataset
+
+Use these measures in order to evaluate the quality of both classes of learning algorithms
+for the NHL dataset.
+
+As we can see, the score based algorithm falls within a healthy 1.4 in scores of Arugha. Thus we can conclude that the model might be useful
+
+The constraint based algoritm however does not lie within the limits of a "useful" Arugha, therefore we can conclude that it isn't very useful. This seems to go well with the intuition one gets when looking at the plot. Please note that some arcs are obstructed in the graph due to the size of the nodes.
+
+
+
 
 ```{r,include=FALSE}
 library(Hmisc)
 
 ```
 
-```{r}
+```{r, warning=FALSE}
 
 
 Tmp = read.csv("nhl.csv",nrows = 5)
@@ -225,63 +264,46 @@ class = rep(list("factor"),ncol(Tmp))
 
 NHL = read.csv("nhl.csv",colClasses = class)
 
-
-#impute(NHL[,c(2:ncol(Tmp))], fun=median)
-#impute(NHL)
-#impute(NHL[c(2:3),],fun=median)
-
-Tmp2<- complete.cases(NHL)
+Tmp2<- complete.cases(NHL) # only take complete cases
 NHL <- NHL[Tmp2,]
 
 
 NHLnet_sbl <- tabu(NHL)
 NHLnet_cbl <- iamb(NHL)
 
-plot(NHLnet_sbl)
-title("NHL sbl")
-plot(NHLnet_cbl)
-title("NHL cbl")
+
+numNodes = length(NHLnet_sbl$nodes)
+numArcs = length(NHLnet_sbl$arcs[,1])
+
+plot(NHLnet_sbl, font.main = 1, main = paste("NHL SB, ibreaks = ", bins,  "number of nodes:" , numNodes, "bumber of arcs:" , numArcs))
+
+
+
+print(length(NHLnet_sbl$nodes)/length(NHLnet_sbl$arcs[,1]))
+
+
+
+numNodes = length(NHLnet_cbl$nodes)
+numArcs = length(NHLnet_cbl$arcs[,1])
+
+plot(NHLnet_cbl, font.main = 1, main = paste("NHL CB, ibreaks = ", bins,  "number of nodes:" , numNodes, "bumber of arcs:" , numArcs))
+
+print(length(NHLnet_cbl$nodes)/length(NHLnet_cbl$arcs[,1]))
+
 ```
 
-NHL dataset, liad column classes as factor (A.4)
 
-missing data : probably median since mean desn't make sense for factors.
+##5: compare margial prob distributions of learnt NHL bN with those of the manually coinstructed ones
 
-check for differences, unterschiedlcihe zahl nodes is ok.
+Compare the marginal probability distributions of the learnt NHL Bayesian network with
+those of the manually constructed network.
 
-#define measures for quality of a learning algorithm in terms of a known bayes network structure, motivate definition
-
-I have to be hones: I do not really understand that Question. Do the authors suggest I find a measure that is original in describing the quality of a bayesian Network? I'm sure that can't be true.
-
-My measure for quality of the learning algorithm is Aruhga, which is the Quotient between nodes and vertices. $$Aruhga = \frac{Nodes}{Vertices}$$Arhuga is a binary measure with the classes {useful, not useful}, depending on wether Aruhga falls inside the interval [$\alpha , \beta$]. $\alpha$ and $\beta$ are depending heavily on the purpose and topic of the network and should normally be defined by logical reasoning before constructing the network. However, since the expert knowledge and necessary publications are not always readily available, the author provides some default values with $\alpha = 2.3$ and  $\beta = 1.2/Nodes!$. Please note that Aruhga is a measure of the connectivity of the network. values above alpha may indicate that too many nodes are used, thus either weakening the correlation between the single nodes OR bringing in Nodes that are not relevant for each other. Networks with a value below beta indicate that the network is highly connected which might reduce functionality and also might point to a circular relationship between variables in the real world that cannot be represented by a DAG.
-
-##use measures to evaluate both classes of learning algs for NHL dataset
-
-### iris data set
-learnt with score learning algorithm: Aruhga = 5/4 = 1.25; beta = 1.2/5 = 0.002.
-learnt with Constraint based algorithm: Aruhga = 5/2 = 2.5; beta = 1.2/5 = ,002
-
-While the score learning algorithm scores well in terms of Aruhga, the constraint based algorithm falls out of the default interval. Given that sepal.length, sepal.width and petal.length are likely caused by the species, we would say that the constraint based algorithm performs poorly on this dataset. 
-
-###Breast cancer dataset
-
-nodes = 16,
-vertices = scoreFull = 
-
-### NHL
-
-## compare margial prob distributions of learnt NHL bN with those of the manually coinstructed ones
 
 since constraint based aslgorithms do not necessarily produce directed graphs, we will only examine score based algorithms.
 
-```{r}
+```{r, warning=F}
 fittedNHL = bn.fit(NHLnet_sbl,NHL)
 
-#fittedNHL2 = bn.fit(NHLnet_cbl,NHL)
-# diagnostic BN structures
-
-fittedNHL
-#fittedNHL2
 ```
 
 
@@ -292,27 +314,32 @@ get the manually constructed network:
 
 manual = read.net("nhl.net")
 
-#manual
 
-#manNet = bn.fit(manual,a)
-names(manual)
-typeof(manual)
-manual
 test <- bn.net(manual)
 plot(test)
+
+print(intersect(NHLnet_sbl$arcs,test$arcs))
+print(setdiff(names(NHLnet_sbl$nodes),names(test$nodes)))
+print(setdiff(names(test$nodes),names(NHLnet_sbl$nodes)))
+
+print(setdiff(NHLnet_sbl$arcs,test$arcs))
+print(setdiff(test$arcs,NHLnet_sbl$arcs))
+
+
+
 ```
 
-# develop special purpose BN (NBN or TAN, see .2)
+##6: learn bayesian network from breast cancer daataset with search and score or constraint based algorithm
+
+see section 2. This question seems redundant since the net has already been trained in question 2 where it had to be compared in order of size of data set. The net from question 2 will also be used in subsequent sections.
+
+##7:  develop special purpose BN (NBN or TAN, see .2)
 ```{r}
 
 
 netnb = naive.bayes(a,"BC")
-plot(netnb)
+plot(netnb, main = c("NBN BC"))
 netnb2 <- bn.fit(netnb,a)
-#netnb2
-#score(netnb,a)
-#score(netnb2)
-#score(a,BC_cbl)
 
 
 
@@ -320,56 +347,25 @@ netnb2 <- bn.fit(netnb,a)
 
 
 
-## compare BN and SPBN with manually constructed network in terms of network structure, goodnes of fit scores (lkikelohood,...) and accuracy measures such as misclassification error and ROC (B.2)
+##8:K compare BN and SPBN with manually constructed network in terms of network structure, goodnes of fit scores (lkikelohood,...) and accuracy measures such as misclassification error and ROC (B.2)
 
+Compare the Bayesian network obtained by step (6) and the special purpose Bayesian
+network from (7) with the manually constructed network in Figure 2 in terms of network
+structure, goodness of fit scores (e.g., likelihood) and accuracy using measures such as
+misclassification error and area under the ROC curve from cross-validation 
 
-
-```{r}
-
-netnb2 <- bn.fit(netnb,a)
-netnb2
-score(netnb,a)
-
-
-nbncv <- bn.cv(a,netnb,loss="logl",loss.args = list(target="BC"),debug=T)
-nbncv
-
-bncv <- bn.cv(a,BC_cbl,loss="logl",loss.args = list(target="BC"),debug=T)
-bncv
-
-
-nbncv <- bn.cv(a,netnb,loss="pred",loss.args = list(target="BC"),debug=T)
-nbncv
-
-bncv <- bn.cv(a,BC_cbl,loss="pred",loss.args = list(target="BC"),debug=T)
-bncv
-
-
-
-
-```
-
-Read in manually constructed network:
+###Read in manually constructed network:
 
 ```{r}
 
 manual = read.net("bc.net")
 
-#manual
 
-#manNet = bn.fit(manual,a)
-names(manual)
-names(BC_cbl)
-typeof(manual)
-typeof(BC_cbl)
+
 test <- bn.net(manual)
 plot(test)
+manual <- bn.fit(test,BC)
 
-
-bncv <- bn.cv(a,test,loss="pred",loss.args = list(target="BC"),debug=T)
-
-#manbncv <- bn.cv(a,manual,loss="logl",loss.args = list(target="BC"),debug=T)
-#manbncv
 
 
 ```
@@ -377,13 +373,155 @@ bncv <- bn.cv(a,test,loss="pred",loss.args = list(target="BC"),debug=T)
 
 
 
-library(ROCR),
+###prediction error/cross validation
+
+```{r}
+
+nbncv <- bn.cv(BC,netnb,loss="pred",loss.args = list(target="BC"),k=3)
+nbncv
+
+bncv <- bn.cv(BC,BC_sbl,loss="pred",loss.args = list(target="BC"),k=3)
+bncv
+
+Mncv <- bn.cv(BC,test,loss="pred",loss.args = list(target="BC"),k=3)
+Mncv
+```
+
+As clearly visible, the NB network has the lowest prediction loss, whilöe the manually and algorithmically created networks have similar values around ~3.85 (probably light differences due to rounding issues)
+
+
+###ROC
+
+ROC fpr the BN
+```{r}
+
+
+netcvfit1 = as.grain(bncv[[1]]$fitted)
+netcvfit2 = as.grain(bncv[[2]]$fitted)
+netcvfit3 = as.grain(bncv[[3]]$fitted)
+#head(netcvfit1)
+
+nbntest1 = BC[bncv[[1]]$test, ]
+nbntest2 = BC[bncv[[2]]$test, ]
+nbntest3 = BC[bncv[[3]]$test, ]
+#head(nbntest1)
+
+
+pred_test1 = predict(netcvfit1, response = c("BC"), newdata = nbntest1,
+predictors = names(nbntest1)[-4], type = "distribution")
+pred_test2 = predict(netcvfit2, response = c("BC"), newdata = nbntest2,
+predictors = names(nbntest2)[-4], type = "distribution")
+pred_test3 = predict(netcvfit3, response = c("BC"), newdata = nbntest3,
+predictors = names(nbntest3)[-4], type = "distribution")
+
+nbntest = rbind(nbntest1,nbntest2,nbntest3)
+
+#head(nbntest)
+
+
+
+pred_test = data.frame(c(pred_test1$pred$BC[ ,2], pred_test2$pred$BC[ ,2],
+pred_test3$pred$BC[ ,2]))
+
+#head(pred_test)
+#names(pred_test)
+
+
+colAUC(pred_test, nbntest[ ,4], plotROC = TRUE)
+#title("test")
+
+
+
+```
+
+ROC for the NBN
+
+```{r}
+
+netcvfit1 = as.grain(nbncv[[1]]$fitted)
+netcvfit2 = as.grain(nbncv[[2]]$fitted)
+netcvfit3 = as.grain(nbncv[[3]]$fitted)
+#head(netcvfit1)
+
+nbntest1 = BC[nbncv[[1]]$test, ]
+nbntest2 = BC[nbncv[[2]]$test, ]
+nbntest3 = BC[nbncv[[3]]$test, ]
+#head(nbntest1)
+
+
+pred_test1 = predict(netcvfit1, response = c("BC"), newdata = nbntest1,
+predictors = names(nbntest1)[-4], type = "distribution")
+pred_test2 = predict(netcvfit2, response = c("BC"), newdata = nbntest2,
+predictors = names(nbntest2)[-4], type = "distribution")
+pred_test3 = predict(netcvfit3, response = c("BC"), newdata = nbntest3,
+predictors = names(nbntest3)[-4], type = "distribution")
+
+nbntest = rbind(nbntest1,nbntest2,nbntest3)
+
+#head(nbntest)
+
+
+
+pred_test = data.frame(c(pred_test1$pred$BC[ ,2], pred_test2$pred$BC[ ,2],
+pred_test3$pred$BC[ ,2]))
+
+#head(pred_test)
+#names(pred_test)
+
+
+colAUC(pred_test, nbntest[ ,4], plotROC = TRUE)
+```
+
+
+ROC fpor the manually created network
+
+```{r}
+
+netcvfit1 = as.grain(Mncv[[1]]$fitted)
+netcvfit2 = as.grain(Mncv[[2]]$fitted)
+netcvfit3 = as.grain(Mncv[[3]]$fitted)
+#head(netcvfit1)
+
+nbntest1 = BC[Mncv[[1]]$test, ]
+nbntest2 = BC[Mncv[[2]]$test, ]
+nbntest3 = BC[Mncv[[3]]$test, ]
+#head(nbntest1)
+
+
+pred_test1 = predict(netcvfit1, response = c("BC"), newdata = nbntest1,
+predictors = names(nbntest1)[-4], type = "distribution")
+pred_test2 = predict(netcvfit2, response = c("BC"), newdata = nbntest2,
+predictors = names(nbntest2)[-4], type = "distribution")
+pred_test3 = predict(netcvfit3, response = c("BC"), newdata = nbntest3,
+predictors = names(nbntest3)[-4], type = "distribution")
+
+nbntest = rbind(nbntest1,nbntest2,nbntest3)
+
+#head(nbntest)
+
+
+
+pred_test = data.frame(c(pred_test1$pred$BC[ ,2], pred_test2$pred$BC[ ,2],
+pred_test3$pred$BC[ ,2]))
+
+#head(pred_test)
+#names(pred_test)
+
+
+colAUC(pred_test, nbntest[ ,4], plotROC = TRUE)
+```
+
+All the networks seem to perform pretty good, with scores around or above .9. Best performance happens between invasive vs no, which seems to match intuition since they are the very different.Best performance overall seems to be held by the automatically created network with .93, .937 and .995, while nbn and manally created network seem to have different strengths, with nbn performing slightly better in invasive vs no and the manually created slightly better in the others.
+
+
 \footnote{Tobias Sing, Oliver Sander, Niko Beerenwinkel, Thomas Lengauer.
 ROCR: visualizing classifier performance in R.
-Bioinformatics 21(20):3940-3941 (2005).}
-\cite{Sing2005}
+Bioinformatics 21(20):3940-3941 (2005). }
+
+\newpage
+
 @Sing2005
- 
+
 
 
 
@@ -430,91 +568,8 @@ netcv = bn.cv(asia,net,loss ="pred", k = 3, loss.args = list(target="T"),debug =
 ```
 \newpage
 -->
-#Attachment A
-
-## Iris dataset
-
-### other discretizations:
 
 
-```{r}
-NewIris <-  discretize(iris, method = 'interval', breaks = 3, ibreaks = 3)
-NewIris1 <-  discretize(iris, method = 'interval', breaks = 100, ibreaks = 10)
-
-NewIrisNetHc <- tabu(NewIris)
-NewIrisNetGs <- iamb(NewIris)
-
-NewIrisNetHc
-NewIrisNetGs
-
-plot(NewIrisNetHc)
-plot(NewIrisNetGs)
-
-NewIrisNetHc1 <- tabu(NewIris)
-NewIrisNetGs1 <- iamb(NewIris)
-
-NewIrisNetHc1
-NewIrisNetGs1
-
-```
-
-
-### Values of hartemink
-
-```{r}
-for( bins in c(3,5,7)){
-tmp=discretize(iris[-5], method = 'hartemink',ibreaks=bins) 
-NewIris = cbind(tmp,iris[5]) 
-
-IrisNetsb <- tabu(NewIris)
-
-print(IrisNetsb)
-}
-
-
-for( bins in c(3,5,7)){
-tmp=discretize(iris[-5], method = 'hartemink',ibreaks=bins) 
-NewIris = cbind(tmp,iris[5]) 
-
-IrisNetcb <- iamb(NewIris)
-
-print(IrisNetcb)
-}
-```
-
-
-##BC Dataset
-
-### values depending on size
-
-```{r}
-for(part in c(1,2,10)){
-    ind = sample(1:(nrow(a)/part))
-    BC <- a[ind,]
-    
-    BC_cbl <- tabu(BC)
-    
-    print(BC_cbl)
-}
-
-
-for(part in c(1,2,10)){
-    ind = sample(1:(nrow(a)/part))
-    BC <- a[ind,]
-    
-    BC_sbl <- iamb(BC)
-    print(BC_sbl)
-
-}
-```
-
-
-
-##NHL dataset
-
-###Values of the networks
-
-INSERTXXX
 
 \newpage
 
